@@ -1,8 +1,9 @@
 (ns darkestperu.jar
+  "Procedures for making JAR files and reading from them."
   (:require [clojure.java.io :as io]
             [schema.core :as s]
             [darkestperu.manifest :as manifest])
-  (:import [java.util.jar JarEntry JarOutputStream]))
+  (:import [java.util.jar JarEntry JarFile JarOutputStream]))
 
 ;; Note: I know that java.nio.file.Path.relativize is more general than this,
 ;; but what I document here is the only functionality I need for make-jar.
@@ -33,3 +34,29 @@
         (.putNextEntry (JarEntry. (str path-in-jar)))
         (.write (.getBytes (slurp path-on-disk)))))))
 
+(defn as-jar-file
+  "Makes a JarFile from JAR-FILEABLE, which has to be a valid input for
+  clj::clojure.java.io/as-file."
+  [jar-fileable]
+  (JarFile. (io/as-file jar-fileable)))
+
+(defn jar-seq
+  "Returns a sequence of the paths of the entries in JAR denoted by
+  JAR-FILEABLE."
+  [jar-fileable]
+  (->> jar-fileable
+       as-jar-file
+       .entries
+       enumeration-seq
+       (map #(.getName %))))
+
+(defn slurp-from-jar
+  "Slurps the contents of the entry with PATH (as returned by jar-seq) from JAR
+  denoted by JAR-FILEABLE."
+  [jar-fileable path]
+  (-> jar-fileable
+      as-jar-file
+      (as-> x
+        (.getInputStream x
+                         (.getJarEntry x path)))
+      slurp))
