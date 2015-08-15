@@ -1,4 +1,4 @@
-(defproject org.clj-grenada/darkestperu "0.2.0-SNAPSHOT"
+(defproject org.clj-grenada/darkestperu "1.0.0-rc.1"
   :description "Currently a tiny library for assembling JAR files"
   :url "https://github.com/clj-grenada/darkestperu"
   :license {:name "MIT License"
