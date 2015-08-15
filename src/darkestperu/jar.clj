@@ -1,9 +1,12 @@
 (ns darkestperu.jar
   "Procedures for making JAR files and reading from them."
   (:require [clojure.java.io :as io]
+            [guten-tag.core :as gt]
             [schema.core :as s]
             [darkestperu.manifest :as manifest])
   (:import [java.util.jar JarEntry JarFile JarOutputStream]))
+
+;;;; Utility functions
 
 ;; Note: I know that java.nio.file.Path.relativize is more general than this,
 ;; but what I document here is the only functionality I need for make-jar.
@@ -19,6 +22,26 @@
       (.relativize (.toPath (io/as-file deeper)))
       .toFile))
 
+
+;;;; Support for different types of things to put in a JAR
+
+(gt/deftag file-entry [contents]
+           {:pre [(some? contents) (extends? io/Coercions (type contents))]})
+
+(gt/deftag string-entry [contents]
+           {:pre [(string? contents)]})
+
+(defmulti entry-to-bytes gt/tag)
+
+(defmethod entry-to-bytes ::file-entry [[_ {:keys [contents]}]]
+  (.getBytes (slurp contents)))
+
+(defmethod entry-to-bytes ::string-entry [[_ {:keys [contents]}]]
+  (.getBytes contents))
+
+
+;;;; Actually dealing with JARs
+
 (s/defn make-jar
   "Creates a JAR in JAR-FILE with a manifest made from MANIFEST-MAP and
   containing the files from FILES-MAP.
@@ -29,10 +52,10 @@
   [jar-file manifest-map :- manifest/ManifestMap files-map]
   (with-open [jar-os (JarOutputStream. (io/output-stream jar-file)
                                        (manifest/map->manifest manifest-map))]
-    (doseq [[path-on-disk path-in-jar] files-map]
+    (doseq [[path-in-jar data] files-map]
       (doto jar-os
         (.putNextEntry (JarEntry. (str path-in-jar)))
-        (.write (.getBytes (slurp path-on-disk)))))))
+        (.write (entry-to-bytes data))))))
 
 (defn as-jar-file
   "Makes a JarFile from JAR-FILEABLE, which has to be a valid input for
