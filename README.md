@@ -1,9 +1,9 @@
 # darkestperu
 
-A very small Clojure library for assembling JAR files. Might become something
-more in the process of developing
-[lib-grenada](https://github.com/clj-grenada/lib-grenada). Not generally usable
-right now.
+A very small Clojure library for assembling JAR files. Quite usable, but doesn't
+do much.
+
+Leiningen dependency: `[org.clj-grimoire/darkestperu 1.0.0-rc.1]`
 
 ## License
 
