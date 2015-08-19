@@ -3,7 +3,9 @@
 A very small Clojure library for assembling JAR files. Quite usable, but doesn't
 do much.
 
-Leiningen dependency: `[org.clj-grimoire/darkestperu 1.0.0-rc.1]`
+Leiningen dependency: `[org.clj-grimoire/darkestperu 1.0.0-rc.2]`
+
+[API docs](https://clj-grenada.github.io/darkestperu/api-docs) (with backlink!)
 
 [API docs](https://clj-grenada.github.com/darkestperu/api-docs)
 
